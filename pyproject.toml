@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "epita-group6-ipops"
+version = "0.1.0"
+description = "IP geolocation and IP operations CLI using IPinfo"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "build>=1.2",
+    "twine>=5.0",
+]
+
+[project.scripts]
+epita-group6-cli = "epita_group6.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
