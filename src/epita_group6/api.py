@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = "https://api.ipinfo.io/lite"
+BASE_URL = "https://ipinfo.io"
 
 
 class IPInfoError(Exception):
@@ -15,28 +15,32 @@ class IPInfoError(Exception):
 
 
 def get_ip_info(ip_address=None):
-    """Retrieve IP geolocation and network information."""
+    """Retrieve IP geolocation information from IPInfo."""
 
     token = os.getenv("IPINFO_TOKEN")
 
     if not token:
-        raise IPInfoError("IPINFO_TOKEN is missing. Check your .env file.")
+        raise IPInfoError("IPINFO_TOKEN is missing.")
 
     if ip_address is not None:
         try:
             ipaddress.ip_address(ip_address)
         except ValueError:
-            raise IPInfoError("Invalid IPv4 or IPv6 address.")
+            raise IPInfoError("Invalid IP address.")
 
-    if ip_address:
-        endpoint = f"{BASE_URL}/{ip_address}"
+        endpoint = f"{BASE_URL}/{ip_address}/json"
     else:
-        endpoint = f"{BASE_URL}/me"
+        endpoint = f"{BASE_URL}/json"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
 
     try:
         response = requests.get(
             endpoint,
-            params={"token": token},
+            headers=headers,
             timeout=10
         )
 
@@ -45,7 +49,7 @@ def get_ip_info(ip_address=None):
         data = response.json()
 
         if not isinstance(data, dict):
-            raise IPInfoError("Unexpected API response format.")
+            raise IPInfoError("Unexpected API response.")
 
         return data
 
@@ -56,12 +60,12 @@ def get_ip_info(ip_address=None):
         status = response.status_code
 
         if status in (401, 403):
-            raise IPInfoError("Invalid or unauthorized API token.")
+            raise IPInfoError("Unauthorized API token.")
 
         if status == 429:
             raise IPInfoError("API rate limit exceeded.")
 
-        raise IPInfoError(f"IPInfo API returned HTTP {status}.")
+        raise IPInfoError(f"HTTP error: {status}")
 
     except requests.exceptions.RequestException:
         raise IPInfoError("Could not connect to IPInfo.")
