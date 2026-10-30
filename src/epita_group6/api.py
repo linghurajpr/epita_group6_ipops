@@ -67,8 +67,8 @@ def get_ip_info(ip_address=None):
 
         raise IPInfoError(f"HTTP error: {status}")
 
-    except requests.exceptions.RequestException:
-        raise IPInfoError("Could not connect to IPInfo.")
-
     except ValueError:
         raise IPInfoError("Invalid JSON response.")
+
+    except requests.exceptions.RequestException:
+        raise IPInfoError("Could not connect to IPInfo.")
